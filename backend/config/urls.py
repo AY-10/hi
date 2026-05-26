@@ -17,7 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
+from ingestion import views
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('ingestion.urls')),
+    path('', views.index_view, name='index'),
+    path('<path:path>', views.index_view, name='index-path'),
 ]

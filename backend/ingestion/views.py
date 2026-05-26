@@ -1,7 +1,8 @@
 from __future__ import annotations
-from django.shortcuts import render
 
 from django.db import transaction
+from django.conf import settings
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework.decorators import api_view
@@ -10,6 +11,13 @@ from rest_framework.response import Response
 from .models import AuditEvent, Organization, ReviewRecord, SourceSystem
 from .serializers import DashboardPayloadSerializer, ReviewRecordSerializer, SourceSystemSerializer
 from .services import record_snapshot, seed_demo_data
+
+
+def index_view(_request, path: str = ''):
+    index_path = settings.BASE_DIR / 'static' / 'frontend' / 'index.html'
+    if not index_path.exists():
+        raise Http404('Frontend build not found')
+    return HttpResponse(index_path.read_text(encoding='utf-8'), content_type='text/html')
 
 
 def dashboard_payload(organization: Organization) -> dict:

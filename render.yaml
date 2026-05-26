@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: breathe-esg-review-prototype
+    env: docker
+    plan: free
+    autoDeploy: true

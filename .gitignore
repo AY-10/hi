@@ -6,6 +6,8 @@ backend/ingestion/migrations/__pycache__/
 frontend/node_modules/
 frontend/dist/
 frontend/.vite/
+backend/static/
+backend/staticfiles/
 .env
 .env.*
 *.pyc
