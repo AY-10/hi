@@ -15,9 +15,9 @@ Backend:
 
 ```bash
 Push-Location backend
-c:/Users/Anurag/Desktop/hi/.venv/Scripts/python.exe manage.py migrate
-c:/Users/Anurag/Desktop/hi/.venv/Scripts/python.exe manage.py seed_demo
-c:/Users/Anurag/Desktop/hi/.venv/Scripts/python.exe manage.py runserver 127.0.0.1:8000
+python manage.py migrate
+python manage.py seed_demo
+python manage.py runserver 127.0.0.1:8000
 Pop-Location
 ```
 
@@ -31,6 +31,8 @@ Pop-Location
 ```
 
 The frontend proxies `/api` to the Django server at `127.0.0.1:8000`.
+
+If you are on Windows, activate the virtual environment first, then run the backend commands from the `backend` folder.
 
 ## Notes
 
