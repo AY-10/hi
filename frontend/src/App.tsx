@@ -170,7 +170,10 @@ export default function App() {
   }, []);
 
   const rows = data?.rows ?? [];
-  const selected = rows.find((row) => row.id === selectedId) ?? rows[0] ?? null;
+  const selected =
+    selectedId === null
+      ? null
+      : rows.find((row) => row.id === selectedId) ?? null;
 
   useEffect(() => {
     if (selected) {
@@ -205,6 +208,25 @@ export default function App() {
       return matchesStatus && matchesSource && matchesQuery;
     });
   }, [rows, search, sourceFilter, statusFilter]);
+
+  useEffect(() => {
+    if (filteredRows.length === 0) {
+      setSelectedId(null);
+      return;
+    }
+
+    const selectedStillVisible = filteredRows.some(
+      (row) => row.id === selectedId,
+    );
+
+    if (!selectedStillVisible) {
+      setSelectedId(filteredRows[0].id);
+    }
+  }, [filteredRows, selectedId]);
+
+  const filterSummary = `${filteredRows.length} of ${rows.length} rows shown`;
+  const filterActive =
+    search.trim().length > 0 || statusFilter !== "all" || sourceFilter !== "all";
 
   async function runAction(path: string, body: Record<string, unknown> = {}) {
     if (!selected) return;
@@ -269,6 +291,8 @@ export default function App() {
   return (
     <main className="app-shell">
       <div className="background-grid" />
+      <div className="glow glow-a" />
+      <div className="glow glow-b" />
       <header className="hero">
         <div>
           <p className="eyebrow">Breathe ESG review workspace</p>
@@ -320,6 +344,34 @@ export default function App() {
         />
       </section>
 
+      <section className="source-strip">
+        <div className="source-strip-card">
+          <span className="detail-label">Filtered view</span>
+          <strong>{filterSummary}</strong>
+          <p>
+            {filterActive
+              ? "Filters are applied to the review queue only, so analysts can focus on one slice at a time."
+              : "All seeded rows are visible. Use the filters to narrow the queue."}
+          </p>
+        </div>
+        <div className="source-strip-card compact">
+          <span className="detail-label">Sources in scope</span>
+          <div className="source-pills">
+            <span>SAP</span>
+            <span>Utility</span>
+            <span>Travel</span>
+          </div>
+        </div>
+        <div className="source-strip-card compact">
+          <span className="detail-label">Audit state</span>
+          <div className="source-pills muted">
+            <span>Provenance</span>
+            <span>Normalization</span>
+            <span>Sign-off</span>
+          </div>
+        </div>
+      </section>
+
       <section className="subgrid">
         <article className="panel queue-panel">
           <div className="panel-heading">
@@ -328,40 +380,55 @@ export default function App() {
               <h2>Rows waiting for analyst sign-off</h2>
             </div>
             <div className="filter-row">
-              <input
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                placeholder="Search rows, flags, or batch name"
-              />
-              <select
-                value={statusFilter}
-                onChange={(event) =>
-                  setStatusFilter(event.target.value as typeof statusFilter)
-                }
-              >
-                <option value="all">All statuses</option>
-                {Object.entries(statusLabels).map(([value, label]) => (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={sourceFilter}
-                onChange={(event) =>
-                  setSourceFilter(event.target.value as typeof sourceFilter)
-                }
-              >
-                <option value="all">All sources</option>
-                <option value="sap">SAP</option>
-                <option value="utility">Utility</option>
-                <option value="travel">Travel</option>
-              </select>
+              <label className="field search-field">
+                <span>Search rows, flags, or batch name</span>
+                <input
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  placeholder="Search rows, flags, or batch name"
+                />
+              </label>
+              <label className="field">
+                <span>All statuses</span>
+                <select
+                  value={statusFilter}
+                  onChange={(event) =>
+                    setStatusFilter(event.target.value as typeof statusFilter)
+                  }
+                >
+                  <option value="all">All statuses</option>
+                  {Object.entries(statusLabels).map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="field">
+                <span>All sources</span>
+                <select
+                  value={sourceFilter}
+                  onChange={(event) =>
+                    setSourceFilter(event.target.value as typeof sourceFilter)
+                  }
+                >
+                  <option value="all">All sources</option>
+                  <option value="sap">SAP</option>
+                  <option value="utility">Utility</option>
+                  <option value="travel">Travel</option>
+                </select>
+              </label>
             </div>
           </div>
 
           <div className="queue-list">
             {filteredRows.map((row) => {
+            {filteredRows.length === 0 ? (
+              <div className="empty-queue">
+                <h3>No rows match the current filters.</h3>
+                <p>Clear search or filters to bring the queue back.</p>
+              </div>
+            ) : null}
               const isSelected = row.id === selected?.id;
               return (
                 <button
@@ -401,7 +468,7 @@ export default function App() {
           </div>
         </article>
 
-        <article className="panel detail-panel">
+        <article className="panel detail-panel sticky-panel">
           {selected ? (
             <>
               <div className="panel-heading compact">
@@ -442,6 +509,21 @@ export default function App() {
                   </div>
                   <div>Confidence {selected.confidence_score}%</div>
                   <div>{selected.scope_label}</div>
+                </div>
+              </div>
+
+              <div className="mini-metrics">
+                <div className="mini-metric">
+                  <span>Activity</span>
+                  <strong>{selected.activity_unit}</strong>
+                </div>
+                <div className="mini-metric">
+                  <span>Emissions</span>
+                  <strong>{formatValue(selected.emissions_kg_co2e)} kg</strong>
+                </div>
+                <div className="mini-metric">
+                  <span>Confidence</span>
+                  <strong>{selected.confidence_score}%</strong>
                 </div>
               </div>
 
