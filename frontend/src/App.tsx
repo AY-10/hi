@@ -422,49 +422,50 @@ export default function App() {
           </div>
 
           <div className="queue-list">
-            {filteredRows.map((row) => {
             {filteredRows.length === 0 ? (
               <div className="empty-queue">
                 <h3>No rows match the current filters.</h3>
                 <p>Clear search or filters to bring the queue back.</p>
               </div>
-            ) : null}
-              const isSelected = row.id === selected?.id;
-              return (
-                <button
-                  className={`queue-row ${isSelected ? "selected" : ""}`}
-                  key={row.id}
-                  onClick={() => setSelectedId(row.id)}
-                >
-                  <div className="row-main">
-                    <div
-                      className={`source-pill ${sourceTone[row.source_type]}`}
-                    >
-                      {row.source_type_label}
-                    </div>
-                    <div>
-                      <div className="row-title">
-                        {row.record_kind_label} · {row.source_record_id}
+            ) : (
+              filteredRows.map((row) => {
+                const isSelected = row.id === selected?.id;
+                return (
+                  <button
+                    className={`queue-row ${isSelected ? "selected" : ""}`}
+                    key={row.id}
+                    onClick={() => setSelectedId(row.id)}
+                  >
+                    <div className="row-main">
+                      <div
+                        className={`source-pill ${sourceTone[row.source_type]}`}
+                      >
+                        {row.source_type_label}
                       </div>
-                      <div className="row-meta">
-                        {row.source_name} ·{" "}
-                        {dayjs(row.activity_date).format("D MMM YYYY")} ·{" "}
-                        {row.scope_label}
+                      <div>
+                        <div className="row-title">
+                          {row.record_kind_label} · {row.source_record_id}
+                        </div>
+                        <div className="row-meta">
+                          {row.source_name} ·{" "}
+                          {dayjs(row.activity_date).format("D MMM YYYY")} ·{" "}
+                          {row.scope_label}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="row-side">
-                    <span className={`status-pill ${row.review_status}`}>
-                      {statusLabels[row.review_status]}
-                    </span>
-                    <strong>
-                      {formatValue(row.emissions_kg_co2e)} kg CO2e
-                    </strong>
-                    <span>{badgeText(row.suspicion_flags)}</span>
-                  </div>
-                </button>
-              );
-            })}
+                    <div className="row-side">
+                      <span className={`status-pill ${row.review_status}`}>
+                        {statusLabels[row.review_status]}
+                      </span>
+                      <strong>
+                        {formatValue(row.emissions_kg_co2e)} kg CO2e
+                      </strong>
+                      <span>{badgeText(row.suspicion_flags)}</span>
+                    </div>
+                  </button>
+                );
+              })
+            )}
           </div>
         </article>
 
